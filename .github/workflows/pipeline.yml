@@ -32,6 +32,20 @@ jobs:
       - name: Deploy to render
         if: ${{ github.event_name == 'push' }}
         run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Depoloy Success
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: success()
+        with:
+          severity: info
+          details: Depolyment successful
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Deploy Failure
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: failure()
+        with:
+          severity: error
+          details: Deploy Failure
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
@@ -45,3 +59,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+  healthcheck:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: URL Health Check
+        uses: Jtalk/url-health-check-action@v3.2
+        with:
+          # check url - using this on deploy only, not as a sheduled healthcheck action
+          url: https://full-stack-open-pokedex-l3wi.onrender.com/health
+          max-attempts: 3
+
