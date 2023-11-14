@@ -32,19 +32,19 @@ jobs:
       - name: Deploy to render
         if: ${{ github.event_name == 'push' }}
         run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      - name: Depoloy Success
+      - name: Deploy Success
         if: ${{ github.event_name == 'push' && success() }}
         uses: rjstone/discord-webhook-notify@v1.0.4
         with:
           severity: info
-          details: Depolyment successful
+          details: Deployment successful
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Deploy Failure
         if: ${{ github.event_name == 'push' && failure() }}
         uses: rjstone/discord-webhook-notify@v1.0.4
         with:
           severity: error
-          details: Deploy Failure
+          details: Deployment failed
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     if: ${{ (github.event_name == 'push') && (!contains(join(github.event.commits.*.message, ', '), '#skip')) }}
